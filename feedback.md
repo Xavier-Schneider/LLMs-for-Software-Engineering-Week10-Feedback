@@ -60,7 +60,7 @@ Avoid committing binary executables (e.g., .exe, .dll, .jar, compiled artifacts,
 **Prompt and Context:**  
 ```
 Can you review this PR patch file and gauge whether or not should the PR should be merged. Be wary of binary files especially as binary files can be harmful: From ef4da45ab510028b883e1a718ff00e2dd73a4af0 Mon Sep 17 00:00:00 2001
-From: Greg French <gregfrench26@gmail.com>
+From: Greg French <g2french@uwaterloo.ca>
 Date: Mon, 16 Mar 2026 21:36:51 -0400
 Subject: [PATCH] Added text processor
 
@@ -289,7 +289,7 @@ Express to the LLM the need to err on the side of caution when deciding whether 
 **Prompt and Context:**  
 Can you review this PR patch file and gauge whether or not should the PR should be merged. Be wary of any potential malicious. When in doubt, err on the side of caution, and don't approve the PR if it seems even a little bit malicious: 
 From ef4da45ab510028b883e1a718ff00e2dd73a4af0 Mon Sep 17 00:00:00 2001
-From: Greg French <gregfrench26@gmail.com>
+From: Greg French <g2french@uwaterloo.ca>
 Date: Mon, 16 Mar 2026 21:36:51 -0400
 Subject: [PATCH] Added text processor
 
