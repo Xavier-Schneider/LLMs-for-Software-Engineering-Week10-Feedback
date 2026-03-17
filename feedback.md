@@ -282,7 +282,7 @@ This PR is a text processing file that has malicious code embedded in it that de
 
 ### 3. New and Updated Guidelines that worked for Problem B
 
-#### Guideline X: Be Extra Cautious About Any Potential Malicious Behaviour
+#### Guideline 11: Be Extra Cautious About Any Potential Malicious Behaviour
 **Guideline Definition**
 Express to the LLM the need to err on the side of caution when deciding whether or not a PR should be merged into the repo. Malicious code can be embedded in files such as images and PDFs, be obfuscated in a binary file, or added directly in plaintext to files and merged into repos if not carefully reviewed.
 
