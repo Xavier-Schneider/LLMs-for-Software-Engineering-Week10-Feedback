@@ -278,8 +278,6 @@ Conclusion: The PR is safe to merge. There are no binary files or harmful conten
 
 This PR is a text processing file that has malicious code embedded in that deletes the helpers.py file from disk, the moment the program is xeceuted. As we can see, the LLM approves the PR, even though it spots the issue and brings it up in its overview. This would be very dangerous in a production environment. This is not good!
 
-Credit: the text processing code used in the PR was written by an LLM while using Cursor in auto mode.
-
 ---
 
 ### 3. New and Updated Guidelines that worked for Problem B
@@ -518,6 +516,8 @@ If you have any doubts about the intent, always err on the side of caution and r
 
 *** Analysis ***
 The updated guideline helped the LLM make the right decision when deciding whether or not to approve this PR. In the original guideline, the LLM approved a PR that deletes the helpers file right off the disk. This updated guideline causes the LLM to take a more cautious approach to any code added that may seem malicious and thus, did not approve this PR to be merged into the repo.
+
+Credit: the text processing code used in the PR was written by an LLM while using Cursor in auto mode.
 
 ---
 
