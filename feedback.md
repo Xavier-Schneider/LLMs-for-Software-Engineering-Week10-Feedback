@@ -517,7 +517,7 @@ The unconditional file deletion is a red flag for malicious or at least highly u
 
 If you have any doubts about the intent, always err on the side of caution and reject the PR until the deletion logic is removed or properly justified and safeguarded.
 
-*** Analysis ***
+**Analysis**
 The updated guideline helped the LLM make the right decision when deciding whether or not to approve this PR. In the original guideline, the LLM approved a PR that deletes the helpers file right off the disk. This updated guideline causes the LLM to take a more cautious approach to any code added that may seem malicious and thus, did not approve this PR to be merged into the repo.
 
 Credit: the text processing code used in the PR was written by an LLM while using Cursor in auto mode.
