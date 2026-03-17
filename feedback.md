@@ -2,7 +2,7 @@
 
 **Authors:** Xavier Schneider, Greg French, Max Ku 
 
-**Model:** GPT-4
+**Model:** GPT-4.1
 
 ## 1. Counterexample Problems
 
