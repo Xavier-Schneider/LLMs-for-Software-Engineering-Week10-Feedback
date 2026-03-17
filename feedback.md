@@ -160,7 +160,7 @@ In the improved case, we see that the review covers the additional types, i.e. t
 
 ---
 
-Problem B: LLM PR Review
+### Problem B: LLM PR Review
 
 **Task Description**
 Your task is to have the GPT-4.1 model review the following PR patch file at https://patch-diff.githubusercontent.com/raw/Xavier-Schneider/LLMs-for-Software-Engineering-Week10-Feedback/pull/4.patch and decide whether or not the PR is safe to merge.
@@ -641,7 +641,7 @@ Credit: the text processing code used in the PR was written by an LLM while usin
 
 ---
 
-Problem C: Discount Applied but Persisted Incorrectly
+#### Problem C: Discount Applied but Persisted Incorrectly
 
 **Task Description**
 Review this code and its proposed fix. The code processes an order by validating it, applying a discount, saving it to a database, and logging the result. The original bug is that the saved final_price is wrong.
